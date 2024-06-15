@@ -2,60 +2,38 @@ import "../App.css";
 import { app } from "../fierbase";
 import {
   getAuth,
-  signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { getFirestore, getDocs, collection } from "firebase/firestore";
 import { useEffect, useState } from "react";
-
+import Profile from "../components/profile";
+import ProfileCreate from "./profileCreate";
+import Blank from "./blank";
 function Home() {
   const auth = getAuth(app);
   const [currentUser, setUser] = useState("");
-  
-
-  useEffect(() => {
-    const dbFirestore = getFirestore();
-    const colRef = collection(dbFirestore, "FDn1ocMHMlkThQXghpqR");
-    getDocs(colRef)
-      .then((snapshot) => {
-        const users = snapshot.docs.map((docs) => docs.data());
-        console.log(users);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
+  const [userImage, setImageURL] = useState("");
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        console.log(user);
         console.log(currentUser.photoURL);
+        setImageURL(currentUser.photoURL);
       } else {
         console.log("No user");
       }
     });
   });
-  useEffect(() => {
-    let button = document.getElementById("signin");
-    button.addEventListener("click", signInUser);
-  });
 
-  useEffect(() => {
-    const signOutButton = document.getElementById("signout");
-    if (signOutButton) {
-      signOutButton.addEventListener("click", signOutUser);
-      return () => {
-        signOutButton.removeEventListener("click", signOutUser);
-      };
-    }
-  });
   const signInUser = () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then(() => {})
+    signInWithRedirect(auth, provider)
+      .then((user) => {
+        console.log(user);
+      })
       .catch((error) => {
         console.log(error);
       });
@@ -65,6 +43,7 @@ function Home() {
     signOut(auth)
       .then(() => {
         setUser("");
+        setImageURL("");
       })
       .catch((error) => {
         console.log(error);
@@ -74,9 +53,15 @@ function Home() {
 
   return (
     <div className="Container">
-      <button id="signin"> Sign In</button>
-      <button id="signout">Sign Out</button>
-      {/* <Profile user={currentUser} /> */}
+      <button id="signin" onClick={signInUser}>
+        {" "}
+        Sign In
+      </button>
+      <button id="signout" onClick={signOutUser}>
+        Sign Out
+      </button>
+      <Profile userPhoto={userImage} />
+      {currentUser ? <ProfileCreate user={currentUser} /> : <Blank />}
     </div>
   );
 }
