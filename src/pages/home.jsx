@@ -7,21 +7,23 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { useEffect, useState } from "react";
-import Profile from "../components/profile";
-import ProfileCreate from "./profileCreate";
-import Blank from "./blank";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 function Home() {
   const auth = getAuth(app);
-  const [currentUser, setUser] = useState("");
-  const [userImage, setImageURL] = useState("");
+  const db = getFirestore(app);
+  const navigate = useNavigate();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user);
-        console.log(user);
-        console.log(currentUser.photoURL);
-        setImageURL(currentUser.photoURL);
+        navigate("/profilecreation");
       } else {
         console.log("No user");
       }
@@ -31,8 +33,9 @@ function Home() {
   const signInUser = () => {
     const provider = new GoogleAuthProvider();
     signInWithRedirect(auth, provider)
-      .then((user) => {
-        console.log(user);
+      .then(() => {
+        // console.log("signed in");
+        // <Navigate to={"/profilecreation"}></Navigate>;
       })
       .catch((error) => {
         console.log(error);
@@ -42,14 +45,33 @@ function Home() {
   const signOutUser = () => {
     signOut(auth)
       .then(() => {
-        setUser("");
-        setImageURL("");
+        console.log("signout");
       })
       .catch((error) => {
         console.log(error);
         console.log("No user");
       });
   };
+  let userData = [];
+
+  useEffect(() => {
+    function queryDB() {
+      const age = 22;
+      const q = query(collection(db, "Recruiter"), where("age", "<", `${age}`));
+      getDocs(q)
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            userData.push(data);
+          });
+          console.log("Matching users:", userData);
+        })
+        .catch((error) => {
+          console.error("Error retrieving users:", error);
+        });
+    }
+    queryDB();
+  }, []);
 
   return (
     <div className="Container">
@@ -60,8 +82,6 @@ function Home() {
       <button id="signout" onClick={signOutUser}>
         Sign Out
       </button>
-      <Profile userPhoto={userImage} />
-      {currentUser ? <ProfileCreate user={currentUser} /> : <Blank />}
     </div>
   );
 }
