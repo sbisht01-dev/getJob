@@ -8,10 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+package.json
 build/
 dist
 .env
-/firebase.js
+/src/firebase.js
 dist-ssr
 *.local
 

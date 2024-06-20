@@ -5,6 +5,7 @@ import {
   serverTimestamp,
   // addDoc,
 } from "firebase/firestore";
+require("dotenv").config({ path: ".env.local" });
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -52,6 +53,9 @@ function ProfileCreate(user) {
       console.log(e);
     }
   };
+
+  console.log(process.env.REACT_APP_API_KEY);
+
   // const signOutUser = () => {
   //   signOut(auth)
   //     .then(() => {
@@ -79,7 +83,9 @@ function ProfileCreate(user) {
             id="recruiter"
             onClick={handleUserRole}
           />
-          <label className="form-label" htmlFor="recruiter">Recruiter</label>
+          <label className="form-label" htmlFor="recruiter">
+            Recruiter
+          </label>
           <input
             type="radio"
             name="userrole"
@@ -90,23 +96,6 @@ function ProfileCreate(user) {
           <label htmlFor="seeker">Seeker</label>
         </div>
       </form>
-
-      <form >
-  <div className="mb-3">
-    <label for="exampleInputEmail1" className="form-label">Email address</label>
-    <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-    <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
-  </div>
-  <div className="mb-3">
-    <label for="exampleInputPassword1" className="form-label">Password</label>
-    <input type="password" className="form-control" id="exampleInputPassword1">
-  </div>
-  <div className="mb-3 form-check">
-    <input type="checkbox" className="form-check-input" id="exampleCheck1">
-    <label className="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" className="btn btn-primary">Submit</button>
-</form>
 
       <button onClick={handleProfileData}>Submit</button>
       {/* <button onClick={signOutUser}>Sign Out</button> */}
