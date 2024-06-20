@@ -5,11 +5,10 @@ import {
   serverTimestamp,
   // addDoc,
 } from "firebase/firestore";
-require("dotenv").config({ path: ".env.local" });
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useState } from "react";
 import { useEffect } from "react";
-import { app } from "../fierbase";
+import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
 function ProfileCreate(user) {
   const auth = getAuth(app);
@@ -54,7 +53,6 @@ function ProfileCreate(user) {
     }
   };
 
-  console.log(process.env.REACT_APP_API_KEY);
 
   // const signOutUser = () => {
   //   signOut(auth)

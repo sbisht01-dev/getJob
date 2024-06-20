@@ -1,5 +1,5 @@
 import "../App.css";
-import { app } from "../fierbase";
+import { app } from "../firebase";
 import {
   getAuth,
   signInWithRedirect,

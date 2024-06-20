@@ -12,7 +12,7 @@ package.json
 build/
 dist
 .env
-/src/firebase.js
+src\firebase.js
 dist-ssr
 *.local
 
