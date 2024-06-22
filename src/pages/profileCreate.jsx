@@ -5,7 +5,7 @@ import {
   serverTimestamp,
   // addDoc,
 } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useState } from "react";
 import { useEffect } from "react";
 import { app } from "../firebase";
@@ -53,18 +53,16 @@ function ProfileCreate(user) {
     }
   };
 
-
-  // const signOutUser = () => {
-  //   signOut(auth)
-  //     .then(() => {
-  //       console.log("signout");
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //       console.log("No user");
-  //     });
-  // };
-  //
+  const signOutUser = () => {
+    signOut(auth)
+      .then(() => {
+        console.log("signout");
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log("No user");
+      });
+  };
 
   return (
     <>
@@ -96,7 +94,7 @@ function ProfileCreate(user) {
       </form>
 
       <button onClick={handleProfileData}>Submit</button>
-      {/* <button onClick={signOutUser}>Sign Out</button> */}
+      <button onClick={signOutUser}>Sign Out</button>
     </>
   );
 }
