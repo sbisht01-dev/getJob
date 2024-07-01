@@ -14,51 +14,49 @@ function Home() {
   const auth = getAuth(app);
   const db = getFirestore(app);
   // const navigate = useNavigate();
-  const [userUID, setUserData] = useState("");
-  const [userMail, setUserMail] = useState("");
+  // const [userUID, setUserData] = useState("");
+  // const [userMail, setUserMail] = useState("");
   useEffect(() => {
-    async function getData(userUID) {
-      try {
-        const docRef = doc(db, "user", userUID);
-        const docSnap = await getDoc(docRef);
-        let userDocument = docSnap.data();
-        if (userDocument) {
-          if (userDocument.role == "seeker") {
-            console.log("Navigate to Seeker panel");
-          } else if (userDocument.role == "recruiter") {
-            console.log("Navigate to Recruiter Pane;");
-          } else {
-            console.log("no role found");
-          }
-          return docSnap.data();
-        } else {
-          console.log("No user data found for:", userMail, userUID);
-          return null;
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        throw error; // Re-throw the error for handling at a higher level
-      }
-    }
+    // async function getData(userUID) {
+    //   try {
+    //     const docRef = doc(db, "user", userUID);
+    //     const docSnap = await getDoc(docRef);
+    //     let userDocument = docSnap.data();
+    //     if (userDocument) {
+    //       if (userDocument.role == "seeker") {
+    //         console.log("Navigate to Seeker panel");
+    //       } else if (userDocument.role == "recruiter") {
+    //         console.log("Navigate to Recruiter Pane;");
+    //       } else {
+    //         console.log("no role found");
+    //       }
+    //       return docSnap.data();
+    //     } else {
+    //       console.log("No user data found for:", userMail, userUID);
+    //       return null;
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching user data:", error);
+    //     throw error; // Re-throw the error for handling at a higher level
+    //   }
+    // }
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserData(user.uid);
         setUserMail(user.email);
-        try {
-          getData(userUID);
-        } catch (error) {
-          console.log(error);
-        }
+        
       } else {
-        setUserData(null);
+        // setUserData(null);
         console.log("No user");
       }
     });
-  }, [auth, db, userUID, userMail]);
+  }, [auth]);
   const signInUser = () => {
     const provider = new GoogleAuthProvider();
     signInWithRedirect(auth, provider)
-      .then(() => {})
+      .then((user) => {
+        console.log(user);
+      })
       .catch((error) => {
         console.log(error);
       });
