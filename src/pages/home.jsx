@@ -8,59 +8,39 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ProfileCreate from "./profileCreate";
 function Home() {
   const auth = getAuth(app);
   const db = getFirestore(app);
   const navigate = useNavigate();
-  const [userUID, setUserData] = useState("");
+  const [userUID, setUserUID] = useState("");
   const [userMail, setUserMail] = useState("");
+ let  userInfo = {
+    UID: userUID,
+    Email: userMail,
+  }
   useEffect(() => {
-    async function getData(userUID) {
-      try {
-        const docRef = doc(db, "user", userUID);
-        const docSnap = await getDoc(docRef);
-        let userDocument = docSnap.data();
-        if (userDocument) {
-          if (userDocument.role == "seeker") {
-            console.log("Navigate to Seeker panel");
-          } else if (userDocument.role == "recruiter") {
-            console.log("Navigate to Recruiter Pane;");
-          } else {
-            console.log("no role found");
-          }
-          return docSnap.data();
-        } else {
-          console.log("No user data found for:", userMail, userUID);
-          return null;
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        throw error;
-      }
-    }
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user.email);
-        setUserData(user.uid);
+        console.log(user);
+        setUserUID(user.uid);
         setUserMail(user.email);
+        navigate('/profilecreation', { state: userInfo });
       } else {
-        setUserData(null);
         console.log("No user");
       }
     });
-  }, [auth]);
-  useEffect(() => {
+  }, [auth])
 
-  })
-
-
+  console.log(userMail, userUID);
   const signInUser = () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider).then((user) => {
-      // console.log(user);
+
     }).catch((error) => {
       console.log(error);
     })
@@ -68,9 +48,7 @@ function Home() {
 
   const signOutUser = () => {
     signOut(auth)
-      .then(() => {
-        console.log("signout");
-      })
+      .then(() => { })
       .catch((error) => {
         console.log(error);
         console.log("No user");

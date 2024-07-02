@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import {
   getFirestore,
   setDoc,
@@ -14,7 +15,8 @@ function ProfileCreate(user) {
   const auth = getAuth(app);
   const db = getFirestore(app);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const userData = location.state;
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -33,11 +35,10 @@ function ProfileCreate(user) {
   const handleDOB = (event) => setDOB(event.target.value);
   const handleXP = (event) => setXP(event.target.value);
   const handleUserRole = (event) => setUserRole(event.target.value);
-
   // console.log(Name);
   const handleProfileData = () => {
-    console.log(user.user.uid);
-    const docref = doc(db, `${userRole}`, user.user.uid);
+    console.log("Profile data")
+    const docref = doc(db, "user", `${userData.UID}`);
     try {
       setDoc(docref, {
         Name: `${Name}`,
@@ -48,6 +49,7 @@ function ProfileCreate(user) {
         Post: "akjrfaksjfn ",
         timestamp: serverTimestamp(),
       });
+      console.log("Data Sent");
     } catch (e) {
       console.log(e);
     }
