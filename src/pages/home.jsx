@@ -8,39 +8,48 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { getDatabase } from "firebase/database";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ProfileCreate from "./profileCreate";
 function Home() {
   const auth = getAuth(app);
   const db = getFirestore(app);
   const navigate = useNavigate();
   const [userUID, setUserUID] = useState("");
   const [userMail, setUserMail] = useState("");
- let  userInfo = {
+  let userInfo = {
     UID: userUID,
     Email: userMail,
   }
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
-        setUserUID(user.uid);
-        setUserMail(user.email);
-        navigate('/profilecreation', { state: userInfo });
+        async function checkUser() {
+          console.log(userUID);
+          const docRef = doc(db, "user", `${user.uid}`);
+          try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              navigate('/homepage');
+            } else {
+              navigate('/profilecreation', { state: userInfo });
+            }
+          } catch (error) {
+            console.log(error)
+          }
+        }
+        checkUser();
       } else {
         console.log("No user");
       }
     });
-  }, [auth])
+  }, [auth]);
 
-  console.log(userMail, userUID);
   const signInUser = () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider).then((user) => {
-
+      setUserMail(user.email);
+      setUserUID(user.uid);
     }).catch((error) => {
       console.log(error);
     })
@@ -48,7 +57,9 @@ function Home() {
 
   const signOutUser = () => {
     signOut(auth)
-      .then(() => { })
+      .then(() => {
+
+      })
       .catch((error) => {
         console.log(error);
         console.log("No user");

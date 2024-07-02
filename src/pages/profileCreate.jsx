@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import {
   getFirestore,
   setDoc,
@@ -15,12 +14,15 @@ function ProfileCreate(user) {
   const auth = getAuth(app);
   const db = getFirestore(app);
   const navigate = useNavigate();
-  const location = useLocation();
-  const userData = location.state;
+  let userUID;
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (!user) {
+        
         navigate("/");
+      }else{
+        userUID = user.uid;
+        console.log(userUID);
       }
     });
   });
@@ -35,10 +37,10 @@ function ProfileCreate(user) {
   const handleDOB = (event) => setDOB(event.target.value);
   const handleXP = (event) => setXP(event.target.value);
   const handleUserRole = (event) => setUserRole(event.target.value);
-  // console.log(Name);
+  console.log(userUID);
   const handleProfileData = () => {
     console.log("Profile data")
-    const docref = doc(db, "user", `${userData.UID}`);
+    const docref = doc(db, "user", `${userUID}`);
     try {
       setDoc(docref, {
         Name: `${Name}`,
