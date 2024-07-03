@@ -138,4 +138,4 @@ function ProfileCreate(user) {
   );
 }
 
-export default { ProfileCreate, run };
+export default { ProfileCreate };
