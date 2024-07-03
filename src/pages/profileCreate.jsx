@@ -10,6 +10,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import {
+  GoogleGenerativeAI,
+} from "@google/generative-ai";
+
 function ProfileCreate(user) {
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -18,9 +22,9 @@ function ProfileCreate(user) {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        
+
         navigate("/");
-      }else{
+      } else {
         userUID = user.uid;
         console.log(userUID);
       }
@@ -30,17 +34,48 @@ function ProfileCreate(user) {
   let [Age, setAge] = useState("");
   let [DOB, setDOB] = useState("");
   let [XP, setXP] = useState("");
-  const [userRole, setUserRole] = useState(""); // Initial state for user role
+  let [userRole, setUserRole] = useState("");
+  let [skillsInput, setUserSkills] = useState("");
+  let [genSkills, setGenSkills] = useState("");
 
   const handleName = (event) => setName(event.target.value);
   const handleAge = (event) => setAge(event.target.value);
   const handleDOB = (event) => setDOB(event.target.value);
   const handleXP = (event) => setXP(event.target.value);
   const handleUserRole = (event) => setUserRole(event.target.value);
-  console.log(userUID);
+  const handleUserSkills = (event) => setUserSkills(event.target.value);
+
+  const apiKey = import.meta.env.VITE_GPT_KEY;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: "Given a list of skills separated by commas and a list of hobbies separated by commas, generate a concise and professional bio (maximum 3-4 sentences) for a user on a job-seeker platform.Bio Content:Identify the top 3 most relevant skills for the job market from the provided list.Choose one interesting hobby that showcases a transferable skill or personality trait valuable for the job market.If any Additional Information is provided, incorporate it into the bio only if it significantly strengthens the overall message.Bio Style:Maintain a professional tone and positive language.Focus on action verbs and specific skills.Keep the bio concise and engaging(avoid jargon or overly technical terms).",
+  });
+
+  const generationConfig = {
+    temperature: 0.75,
+    topP: 0.95,
+    topK: 64,
+    maxOutputTokens: 70,
+    responseMimeType: "text/plain",
+  };
+
+  async function run(userInput) {
+    const chatSession = model.startChat({
+      generationConfig,
+    });
+
+    const result = await chatSession.sendMessage(userInput);
+    setGenSkills(result.response.text());
+    console.log(genSkills);
+  }
+
+
+
   const handleProfileData = () => {
     console.log("Profile data")
     const docref = doc(db, "user", `${userUID}`);
+    run(skillsInput);
     try {
       setDoc(docref, {
         Name: `${Name}`,
@@ -48,8 +83,8 @@ function ProfileCreate(user) {
         DOB: `${DOB}`,
         XP: `${XP}`,
         Role: `${userRole}`,
-        Post: "akjrfaksjfn ",
         timestamp: serverTimestamp(),
+        Skills:`${genSkills}`
       });
       console.log("Data Sent");
     } catch (e) {
@@ -74,7 +109,8 @@ function ProfileCreate(user) {
         <input type="text" onChange={handleName} placeholder="Name" />
         <input type="text" onChange={handleAge} placeholder="Age" />
         <input type="date" onChange={handleDOB} placeholder="DOB" />
-        <input type="text" onChange={handleXP} placeholder="XP" />{" "}
+        <input type="text" onChange={handleXP} placeholder="Experience" />
+        <input type="text" onChange={handleUserSkills} placeholder="Skill" />
         <div>
           <input
             type="radio"

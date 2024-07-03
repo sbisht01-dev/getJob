@@ -11,6 +11,7 @@
     "start": "react-scripts start --port 5000"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.14.1",
     "bootstrap": "^5.3.3",
     "config": "^3.3.11",
     "firebase": "^10.12.2",
