@@ -3,7 +3,6 @@ import {
   setDoc,
   doc,
   serverTimestamp,
-  // addDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useState } from "react";
@@ -35,8 +34,8 @@ function ProfileCreate(user) {
   let [DOB, setDOB] = useState("");
   let [XP, setXP] = useState("");
   let [userRole, setUserRole] = useState("");
-  let [skillsInput, setUserSkills] = useState("");
-  let [genSkills, setGenSkills] = useState("");
+  let [skillsInput, setUserSkills] = useState(" ");
+  let [genSkills, setGenSkills] = useState(" ");
 
   const handleName = (event) => setName(event.target.value);
   const handleAge = (event) => setAge(event.target.value);
@@ -56,7 +55,7 @@ function ProfileCreate(user) {
     temperature: 0.75,
     topP: 0.95,
     topK: 64,
-    maxOutputTokens: 70,
+    maxOutputTokens: 60,
     responseMimeType: "text/plain",
   };
 
@@ -66,10 +65,10 @@ function ProfileCreate(user) {
     });
 
     const result = await chatSession.sendMessage(userInput);
+
     setGenSkills(result.response.text());
     console.log(genSkills);
   }
-
 
 
   const handleProfileData = () => {
@@ -84,7 +83,7 @@ function ProfileCreate(user) {
         XP: `${XP}`,
         Role: `${userRole}`,
         timestamp: serverTimestamp(),
-        Skills:`${genSkills}`
+        Skills: `${genSkills}`
       });
       console.log("Data Sent");
     } catch (e) {
@@ -110,7 +109,7 @@ function ProfileCreate(user) {
         <input type="text" onChange={handleAge} placeholder="Age" />
         <input type="date" onChange={handleDOB} placeholder="DOB" />
         <input type="text" onChange={handleXP} placeholder="Experience" />
-        <input type="text" onChange={handleUserSkills} placeholder="Skill" />
+        <input type="text" onChange={handleUserSkills} placeholder="Skill" required />
         <div>
           <input
             type="radio"
@@ -139,4 +138,4 @@ function ProfileCreate(user) {
   );
 }
 
-export default ProfileCreate;
+export default { ProfileCreate, run };
