@@ -3,6 +3,7 @@ import {
   setDoc,
   doc,
   serverTimestamp,
+  // addDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { useState } from "react";
@@ -34,8 +35,8 @@ function ProfileCreate(user) {
   let [DOB, setDOB] = useState("");
   let [XP, setXP] = useState("");
   let [userRole, setUserRole] = useState("");
-  let [skillsInput, setUserSkills] = useState(" ");
-  let [genSkills, setGenSkills] = useState(" ");
+  let [skillsInput, setUserSkills] = useState("");
+  let [genSkills, setGenSkills] = useState("");
 
   const handleName = (event) => setName(event.target.value);
   const handleAge = (event) => setAge(event.target.value);
@@ -48,14 +49,14 @@ function ProfileCreate(user) {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction: "Given a list of skills separated by commas and a list of hobbies separated by commas, generate a concise and professional bio (maximum 3-4 sentences) for a user on a job-seeker platform.Bio Content:Identify the top 3 most relevant skills for the job market from the provided list.Choose one interesting hobby that showcases a transferable skill or personality trait valuable for the job market.If any Additional Information is provided, incorporate it into the bio only if it significantly strengthens the overall message.Bio Style:Maintain a professional tone and positive language.Focus on action verbs and specific skills.Keep the bio concise and engaging(avoid jargon or overly technical terms).",
+    systemInstruction: "Given a list of skills separated by commas and a list of hobbies separated by commas, generate a concise and professional bio (maximum 3-4 sentences) for a user on a job-seeker platform.Bio Content:Identify the top 3 most relevant skills for the job market from the provided list.Choose one interesting hobby that showcases a transferable skill or personality trait valuable for the job market.If any Additional Information is provided, incorporate it into the bio only if it significantly strengthens the overall message.Bio Style:Maintain a professional tone and positive language.Focus on action verbs and specific skills.Keep the bio concise and engaging(avoid jargon or overly technical terms. ).",
   });
 
   const generationConfig = {
     temperature: 0.75,
     topP: 0.95,
     topK: 64,
-    maxOutputTokens: 60,
+    maxOutputTokens: 75,
     responseMimeType: "text/plain",
   };
 
@@ -65,16 +66,16 @@ function ProfileCreate(user) {
     });
 
     const result = await chatSession.sendMessage(userInput);
-
     setGenSkills(result.response.text());
     console.log(genSkills);
   }
 
 
+
   const handleProfileData = () => {
+    run(skillsInput);
     console.log("Profile data")
     const docref = doc(db, "user", `${userUID}`);
-    run(skillsInput);
     try {
       setDoc(docref, {
         Name: `${Name}`,
@@ -83,7 +84,7 @@ function ProfileCreate(user) {
         XP: `${XP}`,
         Role: `${userRole}`,
         timestamp: serverTimestamp(),
-        Skills: `${genSkills}`
+        Skills:`${genSkills}`
       });
       console.log("Data Sent");
     } catch (e) {
@@ -109,7 +110,7 @@ function ProfileCreate(user) {
         <input type="text" onChange={handleAge} placeholder="Age" />
         <input type="date" onChange={handleDOB} placeholder="DOB" />
         <input type="text" onChange={handleXP} placeholder="Experience" />
-        <input type="text" onChange={handleUserSkills} placeholder="Skill" required />
+        <input type="text" onChange={handleUserSkills} placeholder="Skill" />
         <div>
           <input
             type="radio"
