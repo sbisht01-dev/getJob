@@ -12,7 +12,6 @@ function App() {
           <Route path="/test" element={<Test />}></Route>
           <Route path="/profilecreation" element={<ProfileCreate />}></Route>
           <Route path="/homepage" element={<Homepage />}></Route>
-
         </Routes>
       </BrowserRouter>
     </div>
