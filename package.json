@@ -19,6 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1",
+    "url-rewrite": "^0.4.2",
     "vercel": "^34.2.8"
   },
   "devDependencies": {
