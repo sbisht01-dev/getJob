@@ -8,6 +8,5 @@ export default defineConfig(({ mode }) => {
     define: {
     },
     plugins: [react()],
-    base: "/vite-react-router/",
   };
 });
