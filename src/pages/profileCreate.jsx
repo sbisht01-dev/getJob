@@ -56,7 +56,7 @@ function ProfileCreate(user) {
     temperature: 0.75,
     topP: 0.95,
     topK: 64,
-    maxOutputTokens: 75,
+    maxOutputTokens: 65,
     responseMimeType: "text/plain",
   };
 
