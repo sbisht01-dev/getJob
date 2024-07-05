@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { app } from "../firebase";
 import {
   getFirestore,
   setDoc,
@@ -6,10 +10,7 @@ import {
   // addDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useState } from "react";
-import { useEffect } from "react";
-import { app } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { getDatabase, onValue, ref } from "firebase/database";
 import {
   GoogleGenerativeAI,
 } from "@google/generative-ai";
@@ -17,6 +18,13 @@ import {
 function ProfileCreate(user) {
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const realtimedb = getDatabase(app);
+  let bioCondition;
+  const rdbRef = ref(realtimedb, "Prompts");
+  onValue(rdbRef, (snapshot) => {
+    bioCondition = snapshot.val().bioConditions;
+
+  });
   const navigate = useNavigate();
   let userUID;
   useEffect(() => {
@@ -26,7 +34,6 @@ function ProfileCreate(user) {
         navigate("/");
       } else {
         userUID = user.uid;
-        console.log(userUID);
       }
     });
   });
@@ -49,7 +56,7 @@ function ProfileCreate(user) {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction: "Given a list of skills separated by commas and a list of hobbies separated by commas, generate a concise and professional bio (maximum 3-4 sentences) for a user on a job-seeker platform.Bio Content:Identify the top 3 most relevant skills for the job market from the provided list.Choose one interesting hobby that showcases a transferable skill or personality trait valuable for the job market.If any Additional Information is provided, incorporate it into the bio only if it significantly strengthens the overall message.Bio Style:Maintain a professional tone and positive language.Focus on action verbs and specific skills.Keep the bio concise and engaging(avoid jargon or overly technical terms. ).",
+    systemInstruction: `${bioCondition}`,
   });
 
   const generationConfig = {
@@ -67,7 +74,7 @@ function ProfileCreate(user) {
 
     const result = await chatSession.sendMessage(userInput);
     setGenSkills(result.response.text());
-    console.log(genSkills);
+    // console.log(genSkills);
   }
 
 
@@ -78,28 +85,54 @@ function ProfileCreate(user) {
     const docref = doc(db, "user", `${userUID}`);
     try {
       setDoc(docref, {
-        Name: `${Name}`,
-        Age: `${Age}`,
-        DOB: `${DOB}`,
-        XP: `${XP}`,
-        Role: `${userRole}`,
-        timestamp: serverTimestamp(),
-        Skills:`${genSkills}`
-      });
-      console.log("Data Sent");
+        "fullName": `${Name}`,
+        "profilePicture": "url_to_profile_picture",
+        "contactInformation": {
+          "email": "john.doe@example.com",
+          "phoneNumber": "123-456-7890",
+          "address": {
+            "city": "New York",
+          }
+        },
+        "profileInfo": {
+          "bio": `${genSkills}`,
+          "experience": [
+            {
+              "title": "Senior Software Engineer",
+              "company": "Tech Solutions Inc.",
+              "description": "Led a team of developers in building scalable web applications..."
+            },
+            {
+              "title": "Software Engineer",
+            }
+          ],
+          "education": [
+            {
+              "degree": "Bachelor of Science in Computer Science",
+            }
+          ],
+          "certifications": [
+            {
+              "name": "AWS Certified Solutions Architect - Associate",
+            }
+          ]
+        }
+      }
+      )
     } catch (e) {
-      console.log(e);
+      console.log(error);
     }
+
   };
 
   const signOutUser = () => {
     signOut(auth)
       .then(() => {
-        console.log("signout");
+        console.log("Signout successfull");
       })
       .catch((error) => {
         console.log(error);
-        console.log("No user");
+        console.log(error);
       });
   };
 
