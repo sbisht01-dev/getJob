@@ -24,7 +24,7 @@ function Homepage() {
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         console.log(docSnap.data());
-                             let skills = docSnap.data().bio;
+                        let skills = docSnap.data().profileInfo.bio;
                         let userSkills = document.getElementById('bio');
                         userSkills.innerText = `${skills}`;
                     }
