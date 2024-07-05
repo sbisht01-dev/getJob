@@ -54,6 +54,7 @@ function ProfileCreate(user) {
 
   const apiKey = import.meta.env.VITE_GPT_KEY;
   const genAI = new GoogleGenerativeAI(apiKey);
+  // console.log(bioCondition);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction: `${bioCondition}`,
@@ -73,13 +74,20 @@ function ProfileCreate(user) {
     });
 
     const result = await chatSession.sendMessage(userInput);
-    setGenSkills(result.response.text());
-    // console.log(genSkills);
+    let generatedBio = result.response.text()
+    setGenSkills(`${generatedBio}`);
+
+    console.log(generatedBio);
   }
 
 
 
   const handleProfileData = () => {
+    if (skillsInput == "") {
+      alert("Enter skills");
+      console.log("Enter values");
+      return;
+    }
     run(skillsInput);
     console.log("Profile data")
     const docref = doc(db, "user", `${userUID}`);
@@ -143,7 +151,7 @@ function ProfileCreate(user) {
         <input type="text" onChange={handleAge} placeholder="Age" />
         <input type="date" onChange={handleDOB} placeholder="DOB" />
         <input type="text" onChange={handleXP} placeholder="Experience" />
-        <input type="text" onChange={handleUserSkills} placeholder="Skill" />
+        <input type="text" onChange={handleUserSkills} placeholder="Skill" required />
         <div>
           <input
             type="radio"
