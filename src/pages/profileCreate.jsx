@@ -6,8 +6,6 @@ import {
   getFirestore,
   setDoc,
   doc,
-  serverTimestamp,
-  // addDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getDatabase, onValue, ref } from "firebase/database";
@@ -15,7 +13,7 @@ import {
   GoogleGenerativeAI,
 } from "@google/generative-ai";
 
-function ProfileCreate(user) {
+function ProfileCreate() {
   const auth = getAuth(app);
   const db = getFirestore(app);
   const realtimedb = getDatabase(app);
@@ -30,13 +28,16 @@ function ProfileCreate(user) {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-
         navigate("/");
       } else {
+        console.log(user);
+        setPhoto(`${user.photoURL}`);
+        setMail(`${user.email}`);
         userUID = user.uid;
       }
     });
   });
+
   let [Name, setName] = useState("");
   let [Age, setAge] = useState("");
   let [DOB, setDOB] = useState("");
@@ -44,6 +45,9 @@ function ProfileCreate(user) {
   let [userRole, setUserRole] = useState("");
   let [skillsInput, setUserSkills] = useState("");
   let [genSkills, setGenSkills] = useState("");
+  let [profilePhoto, setPhoto] = useState("");
+  let [userMail, setMail] = useState("");
+
 
   const handleName = (event) => setName(event.target.value);
   const handleAge = (event) => setAge(event.target.value);
@@ -52,9 +56,9 @@ function ProfileCreate(user) {
   const handleUserRole = (event) => setUserRole(event.target.value);
   const handleUserSkills = (event) => setUserSkills(event.target.value);
 
+
   const apiKey = import.meta.env.VITE_GPT_KEY;
   const genAI = new GoogleGenerativeAI(apiKey);
-  // console.log(bioCondition);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction: `${bioCondition}`,
@@ -72,19 +76,15 @@ function ProfileCreate(user) {
     const chatSession = model.startChat({
       generationConfig,
     });
-
     const result = await chatSession.sendMessage(userInput);
     let generatedBio = result.response.text()
     setGenSkills(`${generatedBio}`);
-
     console.log(generatedBio);
   }
 
-
-
   const handleProfileData = () => {
     if (skillsInput == "") {
-      alert("Enter skills");
+      // alert("Enter skills");
       console.log("Enter values");
       return;
     }
@@ -92,17 +92,17 @@ function ProfileCreate(user) {
     console.log("Profile data")
     const docref = doc(db, "user", `${userUID}`);
     try {
-      setDoc(docref, {
-        "fullName": `${Name}`,
-        "profilePicture": "url_to_profile_picture",
+      setDoc(docref, {  
         "contactInformation": {
-          "email": "john.doe@example.com",
-          "phoneNumber": "123-456-7890",
+          "email": `${userMail}`,
+          "phoneNumber": "7678394168",
           "address": {
             "city": "New York",
           }
         },
         "profileInfo": {
+          "fullName": `${Name}`,
+          "profilePicture": `${profilePhoto}`,
           "bio": `${genSkills}`,
           "experience": [
             {
@@ -110,9 +110,6 @@ function ProfileCreate(user) {
               "company": "Tech Solutions Inc.",
               "description": "Led a team of developers in building scalable web applications..."
             },
-            {
-              "title": "Software Engineer",
-            }
           ],
           "education": [
             {
@@ -128,7 +125,7 @@ function ProfileCreate(user) {
       }
       )
     } catch (e) {
-      console.log(error);
+      console.log(e);
     }
 
   };
